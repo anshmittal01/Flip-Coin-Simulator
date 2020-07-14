@@ -20,9 +20,17 @@ max () {
         fi
 }
 
+absoluteDiff () {
+    local diff
+    diff=$(($1 - $2));
+    if [ $diff -lt 0 ]
+    then
+        diff=$((-$diff))
+    fi
+    echo $diff
+}
 
-
-while [[ $headsCount -le 21 && $tailsCount -le 21 ]]
+while [[ $headsCount -le 21 || $tailsCount -le 21 ]]
 do
 	outcome=`flipCoin`
 	if [ $outcome -eq $isTail ]
@@ -38,14 +46,26 @@ echo "tail count is "$tailsCount
 
 if [ $headsCount -eq $tailsCount ]
 then
-	echo "Its a tie"
-else
-	max $tailsCount $headsCount
-	if [ $? -eq $tailsCount ]
-	then
-		echo "winner is tails"
-	else
-		echo "winner is heads"
-	fi
-fi
+	diff=`absoluteDiff $headsCount $tailsCount`
+	while [ $diff -lt 2 ]
+	do
+		outcome=`flipCoin`
+		if [ $outcome -eq $isTail ]
+		then
+			(( tailsCount++ ))
+		else
+			(( headsCount++ ))
+		fi
+		diff=`absoluteDiff $headsCount $tailsCount`
+	done
+	echo "head count is "$headsCount
+	echo "tail count is "$tailsCount
 
+fi
+max $tailsCount $headsCount
+if [ $? -eq $tailsCount ]
+then
+	echo "winner is tails"
+else
+	echo "winner is heads"
+fi
